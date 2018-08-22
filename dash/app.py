@@ -39,8 +39,9 @@ cache.init_app(app.server, config=CACHE_CONFIG)
 def get_interest():
     search_response = requests.get(SEARCH_URL,auth=(USER, PASSWORD))
 
-    if search_response.status_code != 200:
-        return html.Div('JIRA query failed with status {}'.format(search_response.status_code))
+    # TODO handle in a way compatible with memoization
+    #if search_response.status_code != 200:
+    #    return html.Div('JIRA query failed with status {}'.format(search_response.status_code))
 
     votes = [(issue['key'] + ' ' + issue['fields']['summary'],
               voter['displayName']) for issue in search_response.json()['issues']
@@ -69,6 +70,7 @@ def issue_link(description):
     key = description.split(' ')[0]
 
     return html.Td(html.A(href=JIRA_URL+'browse/'+key, children=description))
+
 
 def serve_layout():
     df = get_interest()
