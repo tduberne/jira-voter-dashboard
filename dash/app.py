@@ -42,7 +42,8 @@ def get_interest():
     if search_response.status_code != 200:
         return html.Div('JIRA query failed with status {}'.format(search_response.status_code))
 
-    votes = [(issue['key'] + ' ' + issue['fields']['summary'], voter['displayName']) for issue in search_response.json()['issues']
+    votes = [(issue['key'] + ' ' + issue['fields']['summary'],
+              voter['displayName']) for issue in search_response.json()['issues']
          for voter in requests.get(issue['fields']['votes']['self'], auth=(USER, PASSWORD)).json()['voters'] ]
 
     df = pd.DataFrame(index=pd.Series([issue for (issue, voter) in votes]).drop_duplicates(),
@@ -64,6 +65,11 @@ def tick(marker):
     return html.Td(html.I(className="fa fa-smile-o fa-2x"))
 
 
+def issue_link(description):
+    key = description.split(' ')[0]
+
+    return html.Td(html.A(href=JIRA_URL+'browse/'+key, children=description))
+
 def serve_layout():
     df = get_interest()
 
@@ -72,7 +78,7 @@ def serve_layout():
         [html.Tr([html.Th('Issue')] + [html.Th(col) for col in df.columns])] +
 
         #Body
-        [html.Tr([html.Td(issue)] + [
+        [html.Tr([issue_link(issue)] + [
             # TODO: instead of displaying value, make a color box if not NaN
             html.Td(tick(df[voter][issue])) for voter in df.columns[:-1]
         ] + [
