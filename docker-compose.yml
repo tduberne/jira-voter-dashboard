@@ -1,0 +1,24 @@
+version: '3.2'
+
+services:
+    dash:
+        build: dash
+        container_name: jira_dash
+        restart: always
+        ports:
+            - '80:8050'
+        env_file:
+            - env/jira.env
+        depends_on:
+            - redis
+    redis:
+        image: redis
+        container_name: jira_redis
+        restart: always
+        volumes:
+            - redis:/data
+
+
+volumes:
+    redis:
+        external: false
