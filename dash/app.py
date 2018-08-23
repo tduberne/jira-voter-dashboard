@@ -19,7 +19,7 @@ JQL='project = MATSIM AND labels = DevMtg2018 ORDER BY votes DESC, Rank ASC'
 
 SEARCH_URL=JIRA_URL + 'rest/api/2/search?jql=' + url.quote(JQL)
 
-app = dash.Dash(__name__, url_base_pathname=URL)
+app = dash.Dash(__name__, url_base_pathname=URL, csrf_protect=False)
 
 # Setup Redis caching.
 cache = Cache()
