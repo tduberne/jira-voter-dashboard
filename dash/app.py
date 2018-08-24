@@ -59,6 +59,11 @@ def get_interest():
     for (issue, reporter) in reporters:
         df[reporter][issue] = 'R'
 
+    # matrix issue x issue with n persons that want in both
+    m = df.notna().as_matrix() * 1
+    keys = [d.split(' ')[0] for d in df.index]
+    conflict_matrix = pd.DataFrame(m.dot(m.T), columns=keys, index=keys)
+
     # order by number of votes
     df = df \
             .T.assign(total=lambda d: d.notna().sum(1)) \
@@ -68,7 +73,7 @@ def get_interest():
 
     df = pd.concat([df.loc[list(df.index != 'total')], df.loc[['total']]])
     df.loc['total','interest'] = np.nan
-    return df
+    return df, conflict_matrix
 
 
 def tick(marker):
@@ -92,10 +97,10 @@ def issue_link(description):
 
 
 def serve_layout():
-    df = get_interest()
+    df, conflict_matrix = get_interest()
 
     return html.Div(className="w3-container w3-responsive",
-                    children=html.Table(className="w3-table w3-striped w3-hoverable w3-bordered w3-small",
+                    children=[html.Table(className="w3-table w3-striped w3-hoverable w3-bordered w3-small",
                                         children=[
                                         # Headers
                                         html.Thead([html.Tr([html.Th('Issue')] + [html.Th(col) for col in df.columns])] ),
@@ -107,8 +112,17 @@ def serve_layout():
                                         ] + [
                                                      html.Td(df['interest'][issue])
                                                  ]) for issue in df.index])
-                                        ])
-                    )
+                                        ]),
+                            html.Table(className="w3-table w3-striped w3-hoverable w3-bordered w3-small",
+                                       children=[
+                                        # Headers
+                                        html.Thead([html.Tr([html.Th()] + [html.Th(col) for col in conflict_matrix.columns])] ),
+
+                                        #Body
+                                        html.Tbody([html.Tr([issue_link(i)] + [
+                                            html.Td(conflict_matrix[i][j])
+                                            for j in conflict_matrix.columns
+                                        ]) for i in conflict_matrix.index ])])])
 
 
 app.layout = serve_layout
