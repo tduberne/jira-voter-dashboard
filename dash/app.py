@@ -81,28 +81,35 @@ def issue_link(description):
 def serve_layout():
     df = get_interest()
 
-    return html.Div(children=
-        # Headers
-        [html.Tr([html.Th('Issue')] + [html.Th(col) for col in df.columns])] +
+    return html.Div(className="w3-container w3-responsive",
+                    children=html.Table(className="w3-table w3-striped w3-hoverable ",
+                                        children=[
+                                        # Headers
+                                        html.Thead([html.Tr([html.Th('Issue')] + [html.Th(col) for col in df.columns])] ),
 
-        #Body
-        [html.Tr([issue_link(issue)] + [
-            # TODO: instead of displaying value, make a color box if not NaN
-            html.Td(tick(df[voter][issue])) for voter in df.columns[:-1]
-        ] + [
-            html.Td(df['interest'][issue])
-        ]) for issue in df.index]
-    )
+                                        #Body
+                                        html.Tbody([html.Tr([issue_link(issue)] + [
+                                            # TODO: instead of displaying value, make a color box if not NaN
+                                            tick(df[voter][issue]) for voter in df.columns[:-1]
+                                        ] + [
+                                                     html.Td(df['interest'][issue])
+                                                 ]) for issue in df.index])
+                                        ])
+                    )
 
 
 app.layout = serve_layout
 
+
 app.css.append_css({
-    "external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"
+    "external_url": "https://www.w3schools.com/w3css/4/w3.css"
 })
-app.css.append_css({
-    "external_url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-})
+#app.css.append_css({
+#    "external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"
+#})
+#app.css.append_css({
+#    "external_url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+#})
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)
