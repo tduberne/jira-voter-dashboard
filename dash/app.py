@@ -15,7 +15,7 @@ PASSWORD = os.getenv('JIRA_PASSWORD')
 # get from env?
 # allow to tweak in page?
 JIRA_URL='https://matsim.atlassian.net/'
-JQL='project = MATSIM AND labels = DevMtg2018 ORDER BY votes DESC, Rank ASC'
+JQL='project = MATSIM AND status in ("In Progress", Open, "To Do") AND labels = DevMtg2018 ORDER BY votes DESC, Rank ASC'
 
 SEARCH_URL=JIRA_URL + 'rest/api/2/search?jql=' + url.quote(JQL)
 
