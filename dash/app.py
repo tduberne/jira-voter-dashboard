@@ -47,23 +47,29 @@ def get_interest():
               voter['displayName']) for issue in search_response.json()['issues']
          for voter in requests.get(issue['fields']['votes']['self'], auth=(USER, PASSWORD)).json()['voters'] ]
 
-    df = pd.DataFrame(index=pd.Series([issue for (issue, voter) in votes]).drop_duplicates(),
-                      columns=pd.Series([voter for (issue, voter) in votes]).drop_duplicates())
+    reporters = [(issue['key'] + ' ' + issue['fields']['summary'],
+                  issue['fields']['reporter']['displayName']) for issue in search_response.json()['issues']]
+
+    df = pd.DataFrame(index=pd.Series([issue for (issue, voter) in votes] + [issue for (issue, voter) in reporters]).drop_duplicates(),
+                      columns=pd.Series([voter for (issue, voter) in votes] + [reporter for (issue, reporter) in reporters]).drop_duplicates())
 
     for (issue, voter) in votes:
-        # check how to do that
-        df[voter][issue] = 1
+        df[voter][issue] = 'V'
+
+    for (issue, reporter) in reporters:
+        df[reporter][issue] = 'R'
 
     # order by number of votes
-    return df.assign(interest = lambda df: df.sum(axis=1))\
+    return df.assign(interest = lambda df: df.apply(lambda x: x.notna()).sum(axis=1))\
             .sort_values(by='interest', ascending=False)
 
 
 def tick(marker):
-    if np.isnan(marker):
-        return html.Td()
+    #if np.isnan(marker):
+    #    return html.Td()
 
-    return html.Td(html.I(className="fa fa-smile-o fa-2x"))
+    #return html.Td(html.I(className="fa fa-smile-o fa-2x"))
+    return html.Td(marker)
 
 
 def issue_link(description):
