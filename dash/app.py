@@ -1,5 +1,6 @@
 import dash
 import dash_html_components as html
+import dash_table_experiments as dt
 import urllib.parse as url
 import requests
 import pandas as pd
@@ -61,7 +62,8 @@ def get_interest():
 
     # order by number of votes
     return df.assign(interest = lambda df: df.apply(lambda x: x.notna()).sum(axis=1))\
-            .sort_values(by='interest', ascending=False)
+            .sort_values(by='interest', ascending=False)\
+            .reset_index()
 
 
 def tick(marker):
@@ -84,21 +86,12 @@ def issue_link(description):
 def serve_layout():
     df = get_interest()
 
-    return html.Div(className="w3-container w3-responsive",
-                    children=html.Table(className="w3-table w3-striped w3-hoverable w3-bordered w3-small",
-                                        children=[
-                                        # Headers
-                                        html.Thead([html.Tr([html.Th('Issue')] + [html.Th(col) for col in df.columns])] ),
-
-                                        #Body
-                                        html.Tbody([html.Tr([issue_link(issue)] + [
-                                            # TODO: instead of displaying value, make a color box if not NaN
-                                            tick(df[voter][issue]) for voter in df.columns[:-1]
-                                        ] + [
-                                                     html.Td(df['interest'][issue])
-                                                 ]) for issue in df.index])
-                                        ])
+    return html.Div(
+                    children=dt.DataTable(
+                        rows= df.to_dict('records'),
+                        sortable=True
                     )
+                )
 
 
 app.layout = serve_layout
@@ -112,6 +105,10 @@ app.css.append_css({
 #})
 #app.css.append_css({
 #    "external_url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+#})
+
+#app.scripts.append_script({
+#    'external_url': 'https://www.kryogenix.org/code/browser/sorttable/sorttable.js'
 #})
 
 if __name__ == '__main__':
