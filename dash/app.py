@@ -17,7 +17,7 @@ PASSWORD = os.getenv('JIRA_PASSWORD')
 JIRA_URL='https://matsim.atlassian.net/'
 JQL='project = MATSIM AND status in ("In Progress", Open, "To Do") AND labels = DevMtg2018 ORDER BY votes DESC, Rank ASC'
 
-SEARCH_URL=JIRA_URL + 'rest/api/2/search?jql=' + url.quote(JQL)
+SEARCH_URL=JIRA_URL + 'rest/api/2/search?jql=' + url.quote(JQL) + "&fields=votes,reporter,summary"
 
 app = dash.Dash(__name__, url_base_pathname=URL, csrf_protect=False)
 
