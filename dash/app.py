@@ -60,8 +60,15 @@ def get_interest():
         df[reporter][issue] = 'R'
 
     # order by number of votes
-    return df.assign(interest = lambda df: df.apply(lambda x: x.notna()).sum(axis=1))\
-            .sort_values(by='interest', ascending=False)
+    df = df \
+            .T.assign(total=lambda d: d.notna().sum(1)) \
+            .sort_values(by='total', ascending=False).T\
+            .assign(interest = lambda df: df.apply(lambda x: x.notna()).sum(axis=1))\
+            .sort_values(by='interest', ascending=False)\
+
+    df = pd.concat([df.loc[list(df.index != 'total')], df.loc[['total']]])
+    df.loc['total','interest'] = np.nan
+    return df
 
 
 def tick(marker):
@@ -77,6 +84,9 @@ def tick(marker):
 
 def issue_link(description):
     key = description.split(' ')[0]
+
+    if key == 'total':
+        return html.Td('Total')
 
     return html.Td(html.A(href=JIRA_URL+'browse/'+key, children=description))
 
