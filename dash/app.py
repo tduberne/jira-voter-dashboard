@@ -65,8 +65,11 @@ def get_interest():
 
 
 def tick(marker):
-    #if np.isnan(marker):
-    #    return html.Td()
+    if marker == 'V':
+        return html.Td(className="w3-green", children='V')
+
+    if marker == 'R':
+        return html.Td(className="w3-red", children='R')
 
     #return html.Td(html.I(className="fa fa-smile-o fa-2x"))
     return html.Td(marker)
@@ -82,7 +85,7 @@ def serve_layout():
     df = get_interest()
 
     return html.Div(className="w3-container w3-responsive",
-                    children=html.Table(className="w3-table w3-striped w3-hoverable ",
+                    children=html.Table(className="w3-table w3-striped w3-hoverable w3-bordered w3-small",
                                         children=[
                                         # Headers
                                         html.Thead([html.Tr([html.Th('Issue')] + [html.Th(col) for col in df.columns])] ),
